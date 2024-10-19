@@ -1,0 +1,12 @@
+# Environment
+.env
+.venv
+
+# Python Cache
+__pycache__/
+
+# Pycharm
+.idea/
+
+# Poetry
+poetry.lock

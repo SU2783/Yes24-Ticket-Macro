@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "yes24-ticket-macro"
+version = "1.0.0"
+description = "Yes24 ticket macro"
+authors = ["HyeonSu <dbsq280@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+selenium = "^4.25.0"
+python-dotenv = "^1.0.1"
+webdriver-manager = "^4.0.2"
+easyocr = "^1.7.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

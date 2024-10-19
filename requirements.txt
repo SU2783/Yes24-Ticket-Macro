@@ -1,0 +1,4 @@
+selenium
+python-dotenv
+webdriver_manager
+easyocr
