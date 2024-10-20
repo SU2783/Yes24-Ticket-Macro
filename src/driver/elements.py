@@ -38,3 +38,7 @@ class XpathElement:
     account_button = '//*[@id="rdoPays22"]'       # 무통장 입금 라디오 버튼
     all_agree_button = '//*[@id="cbxAllAgree"]'   # 전체 동의 체크박스
     pay_button = '//*[@id="StepCtrlBtn05"]/a[2]'  # 결제하기 버튼
+
+    dialog_alert = '//div[contains(@class, "ui-dialog")]'     # 경고 창 다이얼로그
+    dialog_text = '//*[@id="dialogAlert"]/p'                  # 경고 창 다이얼로그 텍스트
+    dialog_ok_button = '//button[contains(@type, "button")]'  # 경고 창 다이얼로그 확인 버튼

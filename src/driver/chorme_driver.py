@@ -8,7 +8,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException, UnexpectedAlertPresentException
 
 
 class ChromeDriver(Thread):
@@ -25,6 +25,29 @@ class ChromeDriver(Thread):
             )
 
         self.driver = driver
+
+    def check_if_element_exists(self, by: str, target: str):
+        """
+        웹페이지의 특정 element가 존재하는지 확인하는 함수
+
+        Args:
+            by (str): 원하는 요소의 식별자
+            target (str): 원하는 요소의 locator (By.XPATH, By.ID 등등)
+
+        Returns:
+            element: 원하는 웹페이지의 element 객체.
+                     만약 요소가 존재하지 않으면 None 반환.
+                     경고창이 뜨면 'alert' 반환.
+        """
+
+        try:
+            return self.driver.find_element(by, target)
+
+        except NoSuchElementException:
+            return None
+
+        except UnexpectedAlertPresentException:
+            return 'alert'
 
     def wait_until_element_load(self,
                                 target: str,

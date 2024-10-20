@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from selenium.webdriver import Chrome
 from selenium.webdriver.common.by import By
-from selenium.common import NoSuchElementException
 
 from config import Config
 from ..driver import ChromeDriver
@@ -31,7 +30,7 @@ class MainSelector(ChromeDriver):
             num_of_tickets=Config.num_of_tickets,
             adjacent_seats=Config.adjacent_seats,
         )
-        self.captcha_reader = CaptchaReader()
+        self.captcha_reader = CaptchaReader(self.driver)
 
         self.wish_date = wish_date
         self.wish_time = wish_time
@@ -58,6 +57,24 @@ class MainSelector(ChromeDriver):
         # 예매 진행
         self.make_reservation()
 
+    def login(self):
+        """ 로그인 함수 """
+
+        # 로그인 정보
+        yes24_id = Config.yes24_id
+        yes24_pw = Config.yes24_pw
+
+        # 로그인 페이지 이동
+        self.driver.get('https://www.yes24.com/Templates/FTLogin.aspx?')
+
+        # 로그인 정보 입력
+        self.driver.find_element(By.XPATH, XE.login_id).send_keys(yes24_id)
+        self.driver.find_element(By.XPATH, XE.login_pw).send_keys(yes24_pw)
+        self.driver.find_element(By.XPATH, XE.login_btn).click()
+
+        # 캡챠 이미지 확인 후 로그인
+        self.captcha_reader.check_login_captcha()
+
     def make_reservation(self):
         """ 예매 진행 함수 """
 
@@ -83,42 +100,6 @@ class MainSelector(ChromeDriver):
             if success:
                 self.pay()
                 break
-
-    def login(self):
-        """ 로그인 함수 """
-
-        # 로그인 정보
-        yes24_id = Config.yes24_id
-        yes24_pw = Config.yes24_pw
-
-        # 로그인 페이지 이동
-        self.driver.get('https://www.yes24.com/Templates/FTLogin.aspx?')
-
-        # 로그인 정보 입력
-        self.driver.find_element(By.XPATH, XE.login_id).send_keys(yes24_id)
-        self.driver.find_element(By.XPATH, XE.login_pw).send_keys(yes24_pw)
-        self.driver.find_element(By.XPATH, XE.login_btn).click()
-
-        # 캡챠 이미지가 뜨는지 확인
-        try:
-            # 캡챠 이미지가 뜨면
-            while self.driver.find_element(By.XPATH, XE.login_captcha_img):
-                # 캡챠 이미지 찾기
-                captcha_image_element = self.driver.find_element(By.XPATH, XE.login_captcha_img)
-
-                # OCR로 캡챠 이미지 읽기
-                captcha_number = self.captcha_reader.read(captcha_image_element.screenshot_as_png)
-
-                # 캡챠 번호 입력
-                self.driver.find_element(By.XPATH, XE.login_captcha_input).send_keys(captcha_number)
-
-                # 로그인 버튼 클릭
-                self.driver.find_element(By.XPATH, XE.login_btn).click()
-                time.sleep(1)
-
-        # 캡챠 이미지가 뜨지 않을 경우 NoSuchElementException 발생
-        except NoSuchElementException:
-            self.driver.implicitly_wait(1)
 
     def pay(self):
         """ 좌석 선택 완료 후 결제 진행 함수 """
@@ -152,28 +133,30 @@ class MainSelector(ChromeDriver):
         self.driver.find_element(By.XPATH, XE.all_agree_button).click()
         time.sleep(1)
 
-        # 결제 버튼 클릭
-        self.driver.find_element(By.XPATH, XE.pay_button).click()
+        # 캡챠 이미지 확인 후 결제 완료
+        self.captcha_reader.check_pay_captcha()
 
-        # 캡챠 이미지가 뜨는지 확인
-        try:
-            while self.driver.find_element(By.XPATH, XE.pay_captcha_img):
-                # 캡챠 이미지 찾기
-                captcha_image_element = self.driver.find_element(By.XPATH, XE.pay_captcha_img)
+        # 캡챠 이미지를 입력하지 않았거나, 잘못 입력했을 경우
+        while True:
+            # 다이얼로그 창이 뜨는지 확인
+            dialog = self.check_if_element_exists(By.XPATH, XE.dialog_alert)
+            dialog_text = self.check_if_element_exists(By.XPATH, XE.dialog_text)
 
-                # OCR로 캡챠 이미지 읽기
-                captcha_number = self.captcha_reader.read(captcha_image_element.screenshot_as_png)
+            # 자동 입력 문자를 잘못 입력 했을 경우 다이얼로그가 아닌 브라우저 경고창이 뜸
+            if dialog == 'alert':
+                self.captcha_reader.check_pay_captcha()
+                continue
 
-                # 캡챠 번호 입력
-                self.driver.find_element(By.XPATH, XE.pay_captcha_input).send_keys(captcha_number)
+            # 다이얼로그 창이 뜨고 텍스트가 있으면 확인 버튼 클릭
+            if dialog_text:
+                self.driver.find_element(By.XPATH, XE.dialog_ok_button).click()
 
-                # 결제 버튼 클릭
-                self.driver.find_element(By.XPATH, XE.pay_button).click()
-                time.sleep(1)
+            # 다이얼로그 창이 뜨지 않거나 텍스트가 없으면 반복문 종료
+            if not dialog or not dialog_text:
+                break
 
-        # 캡챠 이미지가 뜨지 않을 경우 NoSuchElementException 발생
-        except NoSuchElementException:
-            self.driver.implicitly_wait(1)
+            # 캡챠 이미지 확인 후 결제 완료
+            self.captcha_reader.check_pay_captcha()
 
         # # 예매 완료 메시지
         # notice_message(
@@ -181,9 +164,7 @@ class MainSelector(ChromeDriver):
         #     text='예매가 완료되었습니다. 예매 내역을 확인해 주세요.',
         # )
 
-        # 크롬 드라이버 종료
-        self.driver.quit()
-
+        print('예매가 완료 되었습니다.')
 
     def wait_until_ticket_open(self, ready_seconds: int = 3):
         """ 예매 버튼이 활성화 될 때까지 대기하는 함수 """
