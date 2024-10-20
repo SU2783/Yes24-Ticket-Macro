@@ -8,10 +8,10 @@ class XpathElement:
     login_pw = '//*[@id="SMemberPassword"]'
     login_btn = '//*[@id="btnLogin"]'
 
-    login_captcha_img = '//*[@id="yesCaptchaImage"]'  # 로그인 캡차 이미지
-    login_captcha_input = '//*[@id="txtCaptcha"]'     # 로그인 캡차 입력창
-    pay_captcha_img = '//*[@id="yesCaptchaImage"]'    # 결제 캡차 이미지
-    pay_captcha_input = '//*[@id="txtCaptcha"]'       # 결제 캡차 입력창
+    login_captcha_img = '//*[@id="yesCaptchaImage"]'  # 로그인 캡챠 이미지
+    login_captcha_input = '//*[@id="txtCaptcha"]'     # 로그인 캡챠 입력창
+    pay_captcha_img = '//*[@id="captchaImg"]'         # 결제 캡챠 이미지
+    pay_captcha_input = '//*[@id="captchaText"]'      # 결제 캡챠 입력창
 
     performance_time = '//li[contains(@timeoption, "2")]'  # 공연 시간 리스트
 
