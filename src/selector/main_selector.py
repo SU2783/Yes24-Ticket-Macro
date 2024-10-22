@@ -85,16 +85,22 @@ class MainSelector(ChromeDriver):
 
         print('공연 날짜:', perform_date, '공연 시간:', perform_time)
 
-        # 좌석 선택
+        # 좌석 선택 방법
         use_minimap = self.driver.find_elements(By.XPATH, XE.minimap)
+        use_seat_table = self.driver.find_elements(By.XPATH, XE.seat_grade)
+
         while True:
             # 미니맵 선택
             if use_minimap:
                 success = self.seat_controller.select_minimap()
 
-            # 구역 선택
+            # 좌석 등급 및 구역 선택
+            elif use_seat_table:
+                success = self.seat_controller.select_seat_grade()
+
+            # 미니맵 및 구역 선택이 불가능할 경우 바로 좌석 선택
             else:
-                success = self.seat_controller.select_seat_table()
+                success = self.seat_controller.select_seat()
 
             # 좌석 선택 완료 시 결제 진행
             if success:

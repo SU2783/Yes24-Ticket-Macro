@@ -48,8 +48,8 @@ class SeatSelector(ChromeDriver):
 
         return False
 
-    def select_seat_table(self):
-        """ 좌석 테이블을 조회하고 좌석을 선택하는 함수 """
+    def select_seat_grade(self):
+        """ 좌석 등급 및 구역을 조회하고 좌석을 선택하는 함수 """
 
         # 좌석 등급 조회
         for seat_grade_element in self.get_list_elements_by_xpath(XE.seat_grade):
@@ -118,7 +118,7 @@ class SeatSelector(ChromeDriver):
 
             # 좌석 선택이 완료되면 종료
             if self.success:
-                return
+                return True
 
     def wait_until_minimap_load(self):
         """ 미니맵이 로드될 때까지 대기하는 함수 """
@@ -142,7 +142,7 @@ class SeatSelector(ChromeDriver):
 
                 if alert_message:
                     self.driver.switch_to.alert.accept()
-                    print(alert_message)
+                    print('알림:', alert_message)
                     return
 
         # 경고 창이 뜨지 않는다면 예매 완료
