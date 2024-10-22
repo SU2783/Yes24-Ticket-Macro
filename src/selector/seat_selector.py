@@ -135,10 +135,15 @@ class SeatSelector(ChromeDriver):
         # 좌석 선택 완료 버튼 클릭
         self.driver.find_element(By.XPATH, XE.seat_select_complete).click()
 
-        # 경고 창 (다른 사람이 결제 중인 좌석입니다.) 뜨면 확인
+        # 경고 창 (다른 사람이 결제 중인 좌석입니다. 또는 좌석을 선택해주세요.) 뜨면 확인
         try:
             if expected_conditions.alert_is_present():
-                self.driver.switch_to.alert.accept()
+                alert_message = self.driver.switch_to.alert.text
+
+                if alert_message:
+                    self.driver.switch_to.alert.accept()
+                    print(alert_message)
+                    return
 
         # 경고 창이 뜨지 않는다면 예매 완료
         except NoAlertPresentException:
