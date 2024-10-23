@@ -13,7 +13,7 @@ class XpathElement:
     pay_captcha_img = '//*[@id="captchaImg"]'         # 결제 캡챠 이미지
     pay_captcha_input = '//*[@id="captchaText"]'      # 결제 캡챠 입력창
 
-    performance_time = '//li[contains(@timeoption, "2")]'  # 공연 시간 리스트
+    performance_time = f'//ul[@id="ulTime"]/li'  # 공연 시간 리스트
 
     minimap = '//*[@id="dMapInfo"]/map'  # 미니맵 구역
     seat_select = '//*[@id="btnSeatSelect"]'  # 좌석 선택 버튼
